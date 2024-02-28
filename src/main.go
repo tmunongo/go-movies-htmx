@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -22,6 +23,15 @@ type MoviesList struct {
 type Input struct {
 	Name   string `json:"name"`
 	Column int    `json:"column"`
+}
+
+type Movie struct {
+	Name       string `json:"name"`
+	Likelihood string `json:"likelihood"`
+}
+
+type Response struct {
+	CommonMovies []Movie `json:"common_movies"`
 }
 
 func main() {
@@ -93,12 +103,11 @@ func processMovies(w http.ResponseWriter, r *http.Request) {
 		context.Background(),
 		openai.ChatCompletionRequest{
 			Model: openai.GPT3Dot5Turbo,
-			//			response_format: {"type": "json_object"},
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role: openai.ChatMessageRoleUser,
 					Content: fmt.Sprintf(`I will provide two lists of movies that two different people like. 
-					You must respond with a list of three different movies that both people would like in Markdown format 
+					You must respond with a list of three different movies that both people would like in JSON format 
 					with the name of the movie and a percentage likelihood of both people liking them:
                     List 1: %q
                     List 2: %q
@@ -123,8 +132,43 @@ func processMovies(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err != nil {
-		log.Print(err)
+		fmt.Fprintf(w, "<h1 class='text-red-500'>Something went wrong: %v</h1>", err)
 	}
 
-	fmt.Fprintf(w, "Chat response: %s", resp.Choices[0].Message.Content)
+	var response Response
+	err = json.Unmarshal([]byte(resp.Choices[0].Message.Content), &response)
+	if err != nil {
+		fmt.Fprintf(w, "Error parsing chat response: %v", err)
+	}
+
+	const htmlTemplate = `
+	<div class="container mt-3">
+		<div class="row">
+			<div class="col">
+				<h3>Common Movies</h3>
+				<ul class="list-group">
+					{{range .}}
+						<li class="list-group-item">
+							<strong>{{.Name}}</strong> - Likelihood: {{.Likelihood}}
+						</li>
+					{{end}}
+				</ul>
+			</div>
+		</div>
+	</div>`
+
+	tmpl, err := template.New("common_movies").Parse(htmlTemplate)
+	if err != nil {
+		fmt.Println("Error parsing template:", err)
+		return
+	}
+
+	var builder strings.Builder
+	err = tmpl.Execute(&builder, response.CommonMovies)
+	if err != nil {
+		fmt.Println("Error executing template:", err)
+		return
+	}
+
+	fmt.Fprint(w, builder.String())
 }

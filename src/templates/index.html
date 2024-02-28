@@ -12,45 +12,51 @@
     <form id="combinedForm" hx-post="api/get-films" hx-target="#result">
       <div class="container mt-5">
         <div class="row">
+          <h2 class="alert alert-info">Please input you and your friend's 3 favorite movies in each column and receive a list
+          of movies that you will both enjoy! :)
+          </h2>
+        </div>
+        <div class="row">
             <div class="col-md-6">
-                <h3>Column 1</h3>
+                <h3>Person 1</h3>
                     <div class="mb-3">
-                        <input type="text" class="form-control" name="input1_column1" placeholder="Input 1">
+                        <input type="text" class="form-control" name="input1_column1" placeholder="Movie 1" required>
                     </div>
                     <div class="mb-3">
-                        <input type="text" class="form-control" name="input2_column1" placeholder="Input 2">
+                        <input type="text" class="form-control" name="input2_column1" placeholder="Movie 2" required>
                     </div>
                     <div class="mb-3">
-                        <input type="text" class="form-control" name="input3_column1" placeholder="Input 3">
+                        <input type="text" class="form-control" name="input3_column1" placeholder="Movie 3" required>
                     </div>
                     <input type="hidden" name="column" value="1">
-                    <button type="button" class="btn btn-primary" onclick="addInput('column1Form')">Add Input</button>
             </div>
             <div class="col-md-6">
-                <h3>Column 2</h3>
+                <h3>Person 2</h3>
                     <div class="mb-3">
-                        <input type="text" class="form-control" name="input1_column2" placeholder="Input 1">
+                        <input type="text" class="form-control" name="input1_column2" placeholder="Movie 1" required>
                     </div>
                     <div class="mb-3">
-                        <input type="text" class="form-control" name="input2_column2" placeholder="Input 2">
+                        <input type="text" class="form-control" name="input2_column2" placeholder="Movie 2" required>
                     </div>
                     <div class="mb-3">
-                        <input type="text" class="form-control" name="input3_column2" placeholder="Input 3">
+                        <input type="text" class="form-control" name="input3_column2" placeholder="Movie 3" required>
                     </div>
                     <input type="hidden" name="column" value="2">
-                    <button type="button" class="btn btn-primary" onclick="addInput('column2Form')">Add Input</button>
             </div>
         </div>
         <div class="row mt-3">
             <div class="col-md-6">
-                <button type="submit" form="combinedForm" class="btn btn-success">Submit</button>
+                <button type="submit" form="combinedForm" class="btn btn-success" hx-indicator="#indicator">Submit</button>
+                <div class="spinner-border text-light" role="status" id="indicator">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
             </div>
         </div>
       </div>
     </form>
 
-    <div id="result">
-      No films found. 
+    <div id="result" class="mt-5 p-5">
+      <p class="alert alert-warning">Awaiting search.</p> 
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   </body>
